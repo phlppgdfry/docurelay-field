@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DocuRelay.Api/DocuRelay.Api.csproj" />
+    <Project Path="src/DocuRelay.Contracts/DocuRelay.Contracts.csproj" />
+    <Project Path="src/DocuRelay.Mobile/DocuRelay.Mobile.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DocuRelay.Domain.Tests/DocuRelay.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
