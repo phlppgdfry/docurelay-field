@@ -89,15 +89,21 @@ docs/
 - Inspect [`Program.cs`](src/DocuRelay.Api/Program.cs) for the runnable REST API.
 - CI validates the API and unit tests; tag builds produce an Android package artifact.
 
+## Live Android proof
+
+<img src="docs/assets/android-runtime.png" alt="DocuRelay Field running in an Android 14 emulator with two dossiers loaded" width="300" />
+
+The release APK was installed and exercised in an Android 14 (API 34) emulator. It launched, loaded the seeded dossiers through `10.0.2.2`, and the Refresh and Sync actions were exercised. [Watch the 6-second runtime demo](docs/assets/android-runtime-demo.mp4). Full scope and limits are recorded in [`runtime-validation.md`](docs/runtime-validation.md).
+
 ## Roadmap
 
 - [x] Dossier retrieval and local cache
 - [x] Persisted upload queue and retry policy
 - [x] API document endpoint and seeded data
 - [x] Automated API and sync-policy tests
+- [x] Android 14 emulator smoke test and runtime screenshot/demo
 - [ ] Physical Android device smoke test
 - [ ] iOS TestFlight internal build
-- [ ] Screenshot and short demo recording added to this README
 
 ## License
 
