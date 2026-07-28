@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:contracts="clr-namespace:DocuRelay.Contracts;assembly=DocuRelay.Contracts"
+             x:Class="DocuRelay.Mobile.MainPage"
+             x:DataType="local:DossiersViewModel"
+             xmlns:local="clr-namespace:DocuRelay.Mobile.ViewModels"
+             Title="DocuRelay Field">
+    <Grid Padding="20" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="14">
+        <VerticalStackLayout Spacing="4">
+            <Label Text="Field documentation, even offline" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Capture evidence now. Synchronize when the network is back." TextColor="#52616B" />
+        </VerticalStackLayout>
+
+        <Label Grid.Row="1" Text="{Binding Status}" TextColor="#087E8B" />
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Dossiers}"
+                        SelectedItem="{Binding SelectedDossier}"
+                        SelectionMode="Single"
+                        EmptyView="Refresh to load dossiers, or reconnect to the API.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="contracts:DossierSummary">
+                    <Border Margin="0,4" Padding="14" Stroke="#D7E2E8" StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding Reference}" FontAttributes="Bold" TextColor="#087E8B" />
+                            <Label Text="{Binding Title}" FontSize="17" FontAttributes="Bold" />
+                            <Label Text="{Binding Location}" TextColor="#52616B" />
+                            <Label Text="{Binding DocumentCount, StringFormat='Documents: {0}'}" TextColor="#52616B" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+            <Button Grid.Column="0" Text="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Grid.Column="1" Text="Add document" Command="{Binding QueueDocumentCommand}" IsEnabled="{Binding CanQueueDocument}" />
+            <Button Grid.Column="2" Text="Sync queue" Command="{Binding SyncCommand}" />
+        </Grid>
+    </Grid>
+</ContentPage>
