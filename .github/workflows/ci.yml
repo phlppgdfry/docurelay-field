@@ -34,4 +34,3 @@ jobs:
           dotnet build src/DocuRelay.Mobile/DocuRelay.Mobile.csproj
           --configuration Release
           --framework net10.0-android
-          --property:TargetFrameworks=net10.0-android

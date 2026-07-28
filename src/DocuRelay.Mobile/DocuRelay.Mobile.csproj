@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
+    <!-- GitHub's Linux runners package Android; local macOS builds retain iOS support. -->
+    <TargetFrameworks Condition="'$(CI)' == 'true'">net10.0-android</TargetFrameworks>
+    <TargetFrameworks Condition="'$(CI)' != 'true'">net10.0-android;net10.0-ios</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>DocuRelay.Mobile</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -19,7 +21,7 @@
     <MauiIcon Include="Resources/AppIcon/appicon.svg" Color="#087E8B" />
     <MauiSplashScreen Include="Resources/Splash/splash.svg" Color="#087E8B" BaseSize="128,128" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
     <ProjectReference Include="../DocuRelay.Contracts/DocuRelay.Contracts.csproj" />
   </ItemGroup>
 </Project>
