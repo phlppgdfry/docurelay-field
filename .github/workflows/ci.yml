@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore src/DocuRelay.Api/DocuRelay.Api.csproj
+      - run: dotnet restore tests/DocuRelay.Domain.Tests/DocuRelay.Domain.Tests.csproj
+      - run: dotnet build src/DocuRelay.Api/DocuRelay.Api.csproj --configuration Release --no-restore
+      - run: dotnet test tests/DocuRelay.Domain.Tests/DocuRelay.Domain.Tests.csproj --configuration Release --no-restore
+
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet workload restore src/DocuRelay.Mobile/DocuRelay.Mobile.csproj
+      - run: dotnet build src/DocuRelay.Mobile/DocuRelay.Mobile.csproj --configuration Release --framework net10.0-android
