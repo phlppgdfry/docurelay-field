@@ -9,6 +9,9 @@
     <ApplicationId>com.philippegodfroy.docurelayfield</ApplicationId>
     <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+    <!-- API 34 is installed locally; CI can use the workload's current SDK. -->
+    <AndroidTargetSdkVersion Condition="'$(CI)' != 'true'">34</AndroidTargetSdkVersion>
+    <AndroidCompileSdkVersion Condition="'$(CI)' != 'true'">34</AndroidCompileSdkVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
   </PropertyGroup>
