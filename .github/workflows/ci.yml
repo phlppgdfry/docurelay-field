@@ -29,4 +29,9 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet workload restore src/DocuRelay.Mobile/DocuRelay.Mobile.csproj
-      - run: dotnet build src/DocuRelay.Mobile/DocuRelay.Mobile.csproj --configuration Release --framework net10.0-android
+      # The project also targets iOS; GitHub's Linux runner can only validate Android.
+      - run: >-
+          dotnet build src/DocuRelay.Mobile/DocuRelay.Mobile.csproj
+          --configuration Release
+          --framework net10.0-android
+          --property:TargetFrameworks=net10.0-android

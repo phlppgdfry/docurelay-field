@@ -20,6 +20,7 @@ jobs:
           dotnet publish src/DocuRelay.Mobile/DocuRelay.Mobile.csproj
           --configuration Release
           --framework net10.0-android
+          --property:TargetFrameworks=net10.0-android
           --property:AndroidPackageFormat=aab
           --output artifacts/android
       - uses: actions/upload-artifact@v4
