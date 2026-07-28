@@ -1,5 +1,7 @@
 # DocuRelay Field
 
+[![CI](https://github.com/phlppgdfry/docurelay-field/actions/workflows/ci.yml/badge.svg)](https://github.com/phlppgdfry/docurelay-field/actions/workflows/ci.yml)
+
 > Offline-first field documentation for teams that cannot afford to lose evidence.
 
 DocuRelay Field is a portfolio project demonstrating a realistic .NET MAUI workflow: a field worker opens a dossier, captures evidence, queues it while offline, and syncs it to an ASP.NET Core API when connectivity returns.
