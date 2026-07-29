@@ -53,8 +53,12 @@ public sealed class SqliteOfflineStore
     public async Task<IReadOnlyList<QueuedUpload>> GetOutstandingUploadsAsync()
     {
         await InitializeAsync();
+        // sqlite-net translates captured values to SQL parameters. Calling ToString inside
+        // the expression would otherwise be emitted as an unavailable SQLite tostring function.
+        var pending = UploadState.Pending.ToString();
+        var retrying = UploadState.Retrying.ToString();
         return await _database.Table<QueuedUpload>()
-            .Where(upload => upload.State == UploadState.Pending.ToString() || upload.State == UploadState.Retrying.ToString())
+            .Where(upload => upload.State == pending || upload.State == retrying)
             .OrderBy(upload => upload.CreatedAt)
             .ToListAsync();
     }
@@ -74,5 +78,37 @@ public sealed class SqliteOfflineStore
             ? UploadState.Failed.ToString()
             : UploadState.Retrying.ToString();
         await _database.UpdateAsync(upload);
+    }
+
+    public async Task<int> RetryFailedUploadsAsync()
+    {
+        await InitializeAsync();
+        var failedState = UploadState.Failed.ToString();
+        var failedUploads = await _database.Table<QueuedUpload>()
+            .Where(upload => upload.State == failedState)
+            .ToListAsync();
+
+        foreach (var upload in failedUploads)
+        {
+            upload.AttemptCount = 0;
+            upload.LastError = null;
+            upload.State = UploadState.Pending.ToString();
+            await _database.UpdateAsync(upload);
+        }
+
+        return failedUploads.Count;
+    }
+
+    public async Task<UploadQueueSummary> GetQueueSummaryAsync()
+    {
+        await InitializeAsync();
+        var uploads = await _database.Table<QueuedUpload>().ToListAsync();
+        var pending = UploadState.Pending.ToString();
+        var retrying = UploadState.Retrying.ToString();
+        var failed = UploadState.Failed.ToString();
+        return new UploadQueueSummary(
+            uploads.Count(upload => upload.State == pending),
+            uploads.Count(upload => upload.State == retrying),
+            uploads.Count(upload => upload.State == failed));
     }
 }

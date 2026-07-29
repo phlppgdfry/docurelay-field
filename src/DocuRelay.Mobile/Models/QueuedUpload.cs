@@ -23,3 +23,8 @@ public enum UploadState
     Failed
 }
 
+public sealed record UploadQueueSummary(int Pending, int Retrying, int Failed)
+{
+    public int Waiting => Pending + Retrying;
+    public static UploadQueueSummary Empty { get; } = new(0, 0, 0);
+}

@@ -9,9 +9,9 @@
 | Launch | `com.philippegodfroy.docurelayfield` became the focused activity |
 | API flow | The MAUI client reached the local API through `10.0.2.2` and displayed both seeded dossiers |
 | UI flow | Refresh and Sync queue were invoked; the screen remained responsive |
-| Assets | [`android-runtime.png`](assets/android-runtime.png) and [`android-runtime-demo.mp4`](assets/android-runtime-demo.mp4) |
+| Assets | [`android-runtime.png`](assets/android-runtime.png), [`android-runtime-demo.mp4`](assets/android-runtime-demo.mp4) and [`android-runtime-demo.gif`](assets/android-runtime-demo.gif) |
 
-This is an emulator smoke test, not a substitute for testing on a physical Android handset.
+This is an emulator smoke test, not a substitute for testing on a physical Android handset. The capture predates the correction in `SqliteOfflineStore.GetOutstandingUploadsAsync`: enum values are now passed to sqlite-net as query parameters rather than translating `ToString()` into an unavailable SQLite function. Capture a new Android run before claiming post-fix runtime validation.
 
 ## iOS / TestFlight status
 

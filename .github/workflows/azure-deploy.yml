@@ -1,0 +1,50 @@
+name: Deploy Azure learning environment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      LOCATION: ${{ vars.AZURE_REGION }}
+      NAME_PREFIX: ${{ vars.AZURE_NAME_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Provision Azure resources
+        run: >-
+          az deployment group create
+          --name docurelay-${{ github.run_id }}
+          --resource-group "$RESOURCE_GROUP"
+          --template-file infra/main.bicep
+          --parameters namePrefix="$NAME_PREFIX" location="$LOCATION"
+          sqlAdministratorLoginPassword="${{ secrets.AZURE_SQL_ADMIN_PASSWORD }}"
+      - name: Publish API
+        run: dotnet publish src/DocuRelay.Api/DocuRelay.Api.csproj --configuration Release --output ./artifacts/api
+      - name: Build and push worker image
+        run: |
+          ACR_LOGIN_SERVER="$(az acr show --name "${NAME_PREFIX//-/}acr" --query loginServer --output tsv)"
+          az acr login --name "${NAME_PREFIX//-/}acr"
+          docker build --file src/DocuRelay.Worker/Dockerfile --tag "$ACR_LOGIN_SERVER/docurelay-worker:${GITHUB_SHA}" .
+          docker push "$ACR_LOGIN_SERVER/docurelay-worker:${GITHUB_SHA}"
+          az containerapp update --name "$NAME_PREFIX-worker" --resource-group "$RESOURCE_GROUP" --image "$ACR_LOGIN_SERVER/docurelay-worker:${GITHUB_SHA}"
+      - name: Deploy API package
+        run: |
+          cd artifacts/api
+          zip -r ../docurelay-api.zip .
+          cd ../..
+          az webapp deploy --resource-group "$RESOURCE_GROUP" --name "$NAME_PREFIX-api" --src-path artifacts/docurelay-api.zip --type zip

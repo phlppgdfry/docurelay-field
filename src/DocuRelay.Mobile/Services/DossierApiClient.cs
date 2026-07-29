@@ -11,6 +11,9 @@ public sealed class DossierApiClient(HttpClient httpClient)
             ?? [];
     }
 
+    public Task<DossierDetail?> GetDossierAsync(Guid dossierId, CancellationToken cancellationToken) =>
+        httpClient.GetFromJsonAsync<DossierDetail>($"api/dossiers/{dossierId}", cancellationToken);
+
     public async Task UploadAsync(
         Guid dossierId,
         string fileName,
@@ -27,4 +30,3 @@ public sealed class DossierApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 }
-

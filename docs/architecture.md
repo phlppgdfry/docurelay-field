@@ -17,10 +17,19 @@ DocuRelay.Mobile
   SQLite cache + persisted upload queue
 
 DocuRelay.Api
-  Minimal API endpoints -> DossierStore -> seeded, in-memory demo data
+  Minimal API endpoints -> EF Core -> Azure SQL Database
+                         |
+                         +-> Azure Service Bus: document-processing
+                                      |
+                                      v
+                         DocuRelay.Worker (Azure Container Apps)
+                                      |
+                                      +-> Azure SQL status updates
 ```
 
-The API is intentionally small so a reviewer can run the entire workflow locally. In production, `DossierStore` would be replaced by an authenticated persistence layer and object storage, without changing the mobile API client contract.
+The API remains deliberately small, but now uses an EF Core SQL Server context and checked-in migration. The mobile API contract stays unchanged. Azure SQL, Service Bus and Entra ID settings are supplied by user secrets locally or managed App Service/Container Apps configuration in Azure.
+
+Without an Azure SQL connection string, the API switches to EF Core's in-memory provider. Without a Service Bus namespace, the outbox uses an in-process channel and a local worker. These fallbacks exist solely for the no-cost local demo; the cloud configuration uses the Azure implementations.
 
 ## Decisions
 
@@ -40,10 +49,21 @@ Transient network errors move an item from `Pending` to `Retrying`. After three 
 
 An item is marked `Synced` only after the API returns a successful HTTP status. Local file cleanup happens after that state transition.
 
+### Asynchronous server processing
+
+The API persists a new document as `Pending` and its versioned `DocumentProcessingMessage` in the same SQL transaction. An outbox dispatcher safely retries publishing the message. The worker explicitly completes a Service Bus message only after the status is `Completed`. An exception is left to Service Bus for retry and, after five delivery attempts, dead-lettering. Because Service Bus is at-least-once, the worker treats an already completed document as a harmless duplicate.
+
+### File storage boundary
+
+The local demo stores raw upload content in the ignored `App_Data/documents` directory and exposes a scoped download endpoint. The database stores metadata and a storage path, not raw content. An Azure Blob Storage implementation can replace this local adapter when cloud storage becomes available.
+
+### Identity without secret connection strings
+
+The deployed API and worker use system-assigned managed identities through `DefaultAzureCredential`. Bicep grants only the Service Bus sender/receiver roles. SQL permissions and the Microsoft Entra API registration are deliberate tenant-owner setup steps documented in [the Azure learning guide](azure-learning-guide.md).
+
 ## Security notes for production
 
-- Add OAuth/OIDC tokens and a per-dossier authorization policy.
+- Microsoft Entra bearer-token validation is enabled when `AzureAd:TenantId` is configured; add per-dossier authorization policies before handling real customer data.
 - Store queued files in an OS-protected location and encrypt sensitive document metadata at rest.
 - Replace HTTP development endpoints with HTTPS only.
 - Apply server-side file size, content-type and malware scanning controls.
-

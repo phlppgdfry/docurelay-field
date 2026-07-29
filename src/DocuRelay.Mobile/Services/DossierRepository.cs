@@ -36,5 +36,16 @@ public sealed class DossierRepository(DossierApiClient apiClient, SqliteOfflineS
             LocalPath = localPath
         });
     }
-}
 
+    public async Task<DossierDetail?> GetDossierDetailAsync(Guid dossierId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await apiClient.GetDossierAsync(dossierId, cancellationToken);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+}

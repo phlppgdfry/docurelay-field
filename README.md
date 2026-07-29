@@ -47,6 +47,7 @@ Field worker -> MAUI app -> local SQLite cache -> upload queue
 | Integration | REST, `HttpClient`, JSON, multipart upload |
 | Quality | xUnit, GitHub Actions |
 | Release | Android AAB artifact workflow, iOS release checklist |
+| Cloud learning environment | Azure App Service, Azure SQL, Microsoft Entra ID, Service Bus, Container Apps and managed identities |
 
 ## Quick start
 
@@ -56,7 +57,7 @@ Field worker -> MAUI app -> local SQLite cache -> upload queue
 dotnet run --project src/DocuRelay.Api
 ```
 
-The API starts with seeded dossiers and exposes a health endpoint at `/health`.
+Without Azure configuration, the API starts with seeded dossiers in a temporary local database and exposes a health endpoint at `/health`. Set `ConnectionStrings:AzureSql` through user-secrets to use a real Azure SQL Database instead.
 
 ### Mobile app
 
@@ -80,6 +81,9 @@ docs/
   architecture.md       Design decisions and data flow
   offline-sync.md       Queue contract, retry semantics and failure handling
   release-checklist.md  Android and iOS release proof checklist
+  azure-learning-guide.md  Azure architecture, identity setup and deployment proof
+  local-demo.md         End-to-end local upload and processing walkthrough
+  portfolio-walkthrough.md  Five-minute technical interview / demo script
 ```
 
 ## Evidence for a technical reviewer
@@ -89,11 +93,9 @@ docs/
 - Inspect [`Program.cs`](src/DocuRelay.Api/Program.cs) for the runnable REST API.
 - CI validates the API and unit tests; tag builds produce an Android package artifact.
 
-## Live Android proof
+## Android runtime record
 
-<img src="docs/assets/android-runtime.png" alt="DocuRelay Field running in an Android 14 emulator with two dossiers loaded" width="300" />
-
-The release APK was installed and exercised in an Android 14 (API 34) emulator. It launched, loaded the seeded dossiers through `10.0.2.2`, and the Refresh and Sync actions were exercised. [Watch the 6-second runtime demo](docs/assets/android-runtime-demo.mp4). Full scope and limits are recorded in [`runtime-validation.md`](docs/runtime-validation.md).
+An Android 14 emulator capture is retained in [`runtime-validation.md`](docs/runtime-validation.md), with [a PNG](docs/assets/android-runtime.png), [video](docs/assets/android-runtime-demo.mp4), and [GIF](docs/assets/android-runtime-demo.gif). That capture predates the SQLite Sync-query correction in the current source, so it is correctly presented as historical evidence rather than a claim that the fixed build has been rerun.
 
 ## Roadmap
 
@@ -104,6 +106,20 @@ The release APK was installed and exercised in an Android 14 (API 34) emulator. 
 - [x] Android 14 emulator smoke test and runtime screenshot/demo
 - [ ] Physical Android device smoke test
 - [ ] iOS TestFlight internal build
+
+## Azure portfolio extension
+
+The API and a separate background worker are ready for an Azure implementation: uploads and their outgoing queue messages are committed together to Azure SQL, an outbox dispatcher publishes a versioned job on Azure Service Bus, and the worker updates the status once work completes. The Bicep environment uses managed identities rather than application secrets.
+
+![Architecture diagram: .NET MAUI field app to App Service API, Service Bus, Worker, Azure SQL and Microsoft Entra ID](docs/assets/azure-ready-processing-flow.svg)
+
+Read the [Azure learning guide](docs/azure-learning-guide.md) for the complete setup, Entra ID registration, Service Bus retry/dead-letter behaviour and GitHub OIDC deployment. Infrastructure is in [`infra/main.bicep`](infra/main.bicep).
+
+## No-cost local demo
+
+The same workflow runs fully locally: uploaded files are stored outside Git, an outbox dispatches messages to an in-process worker, and documents progress from `Pending` to `Completed`. Start the API, then open [`/demo`](http://127.0.0.1:5086/demo) for a visual live console or follow [the local demo guide](docs/local-demo.md) for the full walkthrough and OpenAPI contract.
+
+For a ready-made presentation flow, use the [portfolio walkthrough](docs/portfolio-walkthrough.md). It covers the mobile offline queue, retry handling, live worker processing, automated integration test and the Azure service mapping.
 
 ## License
 

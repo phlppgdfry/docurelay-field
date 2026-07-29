@@ -6,37 +6,81 @@
              x:DataType="local:DossiersViewModel"
              xmlns:local="clr-namespace:DocuRelay.Mobile.ViewModels"
              Title="DocuRelay Field">
-    <Grid Padding="20" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="14">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="Field documentation, even offline" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Capture evidence now. Synchronize when the network is back." TextColor="#52616B" />
-        </VerticalStackLayout>
+    <Grid Background="#F7FAFC" RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,24,20,16" Spacing="14">
+                <Border Padding="18" Background="#103A5C" Stroke="#103A5C" StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="DOCURELAY FIELD" TextColor="#77E8DB" FontSize="12" FontAttributes="Bold" CharacterSpacing="1.4" />
+                        <Label Text="Evidence that keeps moving" TextColor="White" FontSize="27" FontAttributes="Bold" />
+                        <Label Text="Capture offline. Sync safely. Follow every document through processing." TextColor="#C9E4EF" />
+                    </VerticalStackLayout>
+                </Border>
 
-        <Label Grid.Row="1" Text="{Binding Status}" TextColor="#087E8B" />
+                <Label Text="{Binding Status}" TextColor="#087E8B" FontAttributes="Bold" />
 
-        <CollectionView Grid.Row="2"
-                        ItemsSource="{Binding Dossiers}"
-                        SelectedItem="{Binding SelectedDossier}"
-                        SelectionMode="Single"
-                        EmptyView="Refresh to load dossiers, or reconnect to the API.">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="contracts:DossierSummary">
-                    <Border Margin="0,4" Padding="14" Stroke="#D7E2E8" StrokeShape="RoundRectangle 12">
-                        <VerticalStackLayout Spacing="3">
-                            <Label Text="{Binding Reference}" FontAttributes="Bold" TextColor="#087E8B" />
-                            <Label Text="{Binding Title}" FontSize="17" FontAttributes="Bold" />
-                            <Label Text="{Binding Location}" TextColor="#52616B" />
-                            <Label Text="{Binding DocumentCount, StringFormat='Documents: {0}'}" TextColor="#52616B" />
-                        </VerticalStackLayout>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Grid.Column="0" Padding="10" Background="White" Stroke="#DCE8EF" StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="1"><Label Text="WAITING" FontSize="10" TextColor="#64748B" /><Label Text="{Binding QueueSummary.Waiting}" FontSize="22" FontAttributes="Bold" TextColor="#0F766E" /></VerticalStackLayout>
                     </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                    <Border Grid.Column="1" Padding="10" Background="White" Stroke="#DCE8EF" StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="1"><Label Text="RETRYING" FontSize="10" TextColor="#64748B" /><Label Text="{Binding QueueSummary.Retrying}" FontSize="22" FontAttributes="Bold" TextColor="#B45309" /></VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Padding="10" Background="White" Stroke="#DCE8EF" StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="1"><Label Text="FAILED" FontSize="10" TextColor="#64748B" /><Label Text="{Binding QueueSummary.Failed}" FontSize="22" FontAttributes="Bold" TextColor="#B91C1C" /></VerticalStackLayout>
+                    </Border>
+                </Grid>
 
-        <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="8">
-            <Button Grid.Column="0" Text="Refresh" Command="{Binding RefreshCommand}" />
-            <Button Grid.Column="1" Text="Add document" Command="{Binding QueueDocumentCommand}" IsEnabled="{Binding CanQueueDocument}" />
-            <Button Grid.Column="2" Text="Sync queue" Command="{Binding SyncCommand}" />
+                <Label Text="DOSSIERS" FontSize="12" FontAttributes="Bold" TextColor="#52616B" CharacterSpacing="1.2" />
+                <CollectionView HeightRequest="215"
+                                ItemsSource="{Binding Dossiers}"
+                                SelectedItem="{Binding SelectedDossier}"
+                                SelectionMode="Single"
+                                EmptyView="Refresh to load dossiers, or reconnect to the API.">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="contracts:DossierSummary">
+                            <Border Margin="0,4" Padding="14" Background="White" Stroke="#D7E2E8" StrokeShape="RoundRectangle 12">
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="{Binding Reference}" FontAttributes="Bold" TextColor="#087E8B" />
+                                    <Label Text="{Binding Title}" FontSize="17" FontAttributes="Bold" />
+                                    <Grid ColumnDefinitions="*,Auto"><Label Text="{Binding Location}" TextColor="#52616B" /><Label Grid.Column="1" Text="{Binding DocumentCount, StringFormat='{0} docs'}" TextColor="#52616B" /></Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Border Padding="14" Background="#EDF7F7" Stroke="#B8DCDD" StrokeShape="RoundRectangle 14">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="SERVER PROCESSING" FontSize="11" FontAttributes="Bold" TextColor="#087E8B" CharacterSpacing="1" />
+                        <Label Text="{Binding DocumentProcessingStatus}" TextColor="#31555A" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <VerticalStackLayout IsVisible="{Binding HasDocuments}" Spacing="8">
+                    <Label Text="DOCUMENTS" FontSize="12" FontAttributes="Bold" TextColor="#52616B" CharacterSpacing="1.2" />
+                    <CollectionView HeightRequest="190" ItemsSource="{Binding Documents}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="contracts:DocumentSummary">
+                                <Border Margin="0,3" Padding="12" Background="White" Stroke="#D7E2E8" StrokeShape="RoundRectangle 12">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                        <Label Text="{Binding FileName}" FontAttributes="Bold" LineBreakMode="TailTruncation" />
+                                        <Label Grid.Row="1" Text="{Binding UploadedAt, StringFormat='Uploaded {0:g}'}" FontSize="12" TextColor="#64748B" />
+                                        <Border Grid.Column="1" Grid.RowSpan="2" Padding="8,4" Background="#EDE9FE" Stroke="#DDD6FE" StrokeShape="RoundRectangle 999"><Label Text="{Binding Status}" TextColor="#5B21B6" FontSize="11" FontAttributes="Bold" /></Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1" Padding="20,10,20,20" RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="8" RowSpacing="8" Background="#F7FAFC">
+            <Button Grid.Row="0" Grid.Column="0" Text="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Grid.Row="0" Grid.Column="1" Text="Add document" Command="{Binding QueueDocumentCommand}" IsEnabled="{Binding CanQueueDocument}" />
+            <Button Grid.Row="1" Grid.Column="0" Text="Sync queue" Command="{Binding SyncCommand}" />
+            <Button Grid.Row="1" Grid.Column="1" Text="Retry failed" Command="{Binding RetryFailedUploadsCommand}" IsEnabled="{Binding HasFailedUploads}" />
         </Grid>
     </Grid>
 </ContentPage>

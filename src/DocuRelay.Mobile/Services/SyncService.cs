@@ -4,6 +4,10 @@ namespace DocuRelay.Mobile.Services;
 
 public sealed class SyncService(SqliteOfflineStore offlineStore, DossierApiClient apiClient)
 {
+    public Task<int> RetryFailedUploadsAsync() => offlineStore.RetryFailedUploadsAsync();
+
+    public Task<UploadQueueSummary> GetQueueSummaryAsync() => offlineStore.GetQueueSummaryAsync();
+
     public async Task<SyncResult> SyncAsync(CancellationToken cancellationToken)
     {
         var synced = 0;

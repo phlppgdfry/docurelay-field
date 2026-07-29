@@ -30,3 +30,12 @@ public sealed record UploadReceipt(
     DateTimeOffset UploadedAt,
     string Status);
 
+/// <summary>
+/// The versioned contract sent from the API to Azure Service Bus.  Keep this project free of
+/// Azure SDK dependencies so the producer and consumer agree on the payload, not on a library.
+/// </summary>
+public sealed record DocumentProcessingMessage(
+    Guid DocumentId,
+    Guid DossierId,
+    DateTimeOffset QueuedAtUtc,
+    string CorrelationId);
