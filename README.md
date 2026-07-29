@@ -93,9 +93,11 @@ docs/
 - Inspect [`Program.cs`](src/DocuRelay.Api/Program.cs) for the runnable REST API.
 - CI validates the API and unit tests; tag builds produce an Android package artifact.
 
-## Android runtime record
+## Verified Android runtime
 
-An Android 14 emulator capture is retained in [`runtime-validation.md`](docs/runtime-validation.md), with [a PNG](docs/assets/android-runtime.png), [video](docs/assets/android-runtime-demo.mp4), and [GIF](docs/assets/android-runtime-demo.gif). That capture predates the SQLite Sync-query correction in the current source, so it is correctly presented as historical evidence rather than a claim that the fixed build has been rerun.
+<img src="docs/assets/android-runtime-postfix.png" alt="The current DocuRelay Field Android build with the queue dashboard and dossier list" width="300" />
+
+The current release APK was built independently by GitHub Actions, installed on a Pixel 3a Android 14 emulator, and validated against the current local API. The selected dossier shows a real `README.md: Completed` result from the outbox and worker flow. See the [Completed-state screenshot](docs/assets/android-runtime-completed.png) and [compact GIF walkthrough](docs/assets/android-runtime-postfix-demo.gif). Full evidence and the historical capture are recorded in [`runtime-validation.md`](docs/runtime-validation.md).
 
 ## Roadmap
 

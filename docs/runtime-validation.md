@@ -1,5 +1,17 @@
 # Runtime validation
 
+## Android emulator release validation — 29 July 2026
+
+| Area | Evidence |
+| --- | --- |
+| Build | GitHub Actions CI run [30421742035](https://github.com/phlppgdfry/docurelay-field/actions/runs/30421742035) completed successfully and produced the `docurelay-field-android-apk` artifact. |
+| Install | The CI-built release APK was installed on a local Pixel 3a Android 14 (API 34), arm64 emulator. |
+| Current UI | [`android-runtime-postfix.png`](assets/android-runtime-postfix.png) shows the queue dashboard, dossier list and retry controls. |
+| Completed workflow | [`android-runtime-completed.png`](assets/android-runtime-completed.png) shows `README.md: Completed` after a real multipart upload reached the local API, outbox and worker. |
+| Walkthrough | [`android-runtime-postfix-demo.gif`](assets/android-runtime-postfix-demo.gif) transitions from the new dashboard to the verified Completed state. |
+
+This verifies the current post-fix build, including the SQLite query correction that prevents the former `tostring` translation failure.
+
 ## Android emulator smoke test — 28 July 2026
 
 | Area | Evidence |
