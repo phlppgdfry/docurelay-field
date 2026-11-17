@@ -10,6 +10,29 @@ DocuRelay Field is a portfolio project demonstrating a realistic .NET MAUI workf
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![MAUI](https://img.shields.io/badge/.NET%20MAUI-iOS%20%7C%20Android-512BD4)
 
+<table>
+  <tr>
+    <td width="34%" align="center"><img src="docs/assets/android-runtime-postfix-demo.gif" width="250" alt="DocuRelay Field running on an Android 14 emulator: queue dashboard, dossier list and a document reaching Completed"></td>
+    <td width="66%" align="center"><img src="docs/assets/local-demo-console.gif" alt="The local processing console: sending a sample field report and watching it move from Pending through Processing to Completed"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>The MAUI app on Android 14 (release APK built by CI)</sub></td>
+    <td align="center"><sub>The API's live console at <code>/demo</code>: upload → outbox → worker → Completed</sub></td>
+  </tr>
+</table>
+
+## Try it in one minute (no Azure, no phone)
+
+```bash
+dotnet run --project src/DocuRelay.Api --urls http://127.0.0.1:5086
+# open http://127.0.0.1:5086/demo and press "Send a sample field report"
+```
+
+You watch the same path a field upload takes: the API stores the file and an outbox message in
+one transaction, the dispatcher hands it to the worker, and the status goes
+`Pending → Processing → Completed`. With Azure configuration the identical API uses Azure SQL,
+Service Bus and Entra ID instead.
+
 ## Why this exists
 
 This repository was built to demonstrate mobile engineering concerns that are easy to describe but harder to prove:
@@ -91,7 +114,7 @@ docs/
 - Start at [`SyncService`](src/DocuRelay.Mobile/Services/SyncService.cs) for the offline upload policy.
 - Read [`SqliteOfflineStore`](src/DocuRelay.Mobile/Services/SqliteOfflineStore.cs) for durable local state.
 - Inspect [`Program.cs`](src/DocuRelay.Api/Program.cs) for the runnable REST API.
-- CI validates the API and unit tests; tag builds produce an Android package artifact.
+- CI validates the API and unit tests; tag builds produce an Android package artifact. CI also runs weekly, so a newly published vulnerability in a (transitive) package fails the build within a week; Dependabot proposes the update.
 
 ## Verified Android runtime
 
@@ -119,7 +142,7 @@ Read the [Azure learning guide](docs/azure-learning-guide.md) for the complete s
 
 ## No-cost local demo
 
-The same workflow runs fully locally: uploaded files are stored outside Git, an outbox dispatches messages to an in-process worker, and documents progress from `Pending` to `Completed`. Start the API, then open [`/demo`](http://127.0.0.1:5086/demo) for a visual live console or follow [the local demo guide](docs/local-demo.md) for the full walkthrough and OpenAPI contract.
+The same workflow runs fully locally: uploaded files are stored outside Git, an outbox dispatches messages to an in-process worker, and documents progress from `Pending` to `Completed`. Start the API, then open [`/demo`](http://127.0.0.1:5086/demo) for a visual live console where you can send a sample report or upload your own file, or follow [the local demo guide](docs/local-demo.md) for the full walkthrough and OpenAPI contract.
 
 For a ready-made presentation flow, use the [portfolio walkthrough](docs/portfolio-walkthrough.md). It covers the mobile offline queue, retry handling, live worker processing, automated integration test and the Azure service mapping.
 

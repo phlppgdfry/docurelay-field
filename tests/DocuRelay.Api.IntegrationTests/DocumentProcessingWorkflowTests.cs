@@ -19,6 +19,21 @@ public sealed class DocumentProcessingWorkflowTests : IClassFixture<DocuRelayApi
     }
 
     [Fact]
+    public async Task Demo_console_reads_the_same_json_field_names_the_api_returns()
+    {
+        var page = await _client.GetStringAsync("/demo");
+        var dossiers = await _client.GetStringAsync("/api/dossiers");
+
+        // The console once read processingStatus/uploadedAtUtc while the API returns
+        // status/uploadedAt, and then reported a healthy API as unreachable.
+        Assert.Contains("\"reference\"", dossiers);
+        Assert.Contains("doc.status", page);
+        Assert.Contains("doc.uploadedAt", page);
+        Assert.DoesNotContain("processingStatus", page);
+        Assert.DoesNotContain("uploadedAtUtc", page);
+    }
+
+    [Fact]
     public async Task Upload_is_dispatched_and_completed_by_the_local_worker()
     {
         var dossiers = await _client.GetFromJsonAsync<IReadOnlyList<DossierSummary>>("/api/dossiers");

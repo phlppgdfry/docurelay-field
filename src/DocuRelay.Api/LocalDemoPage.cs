@@ -21,6 +21,9 @@ public static class LocalDemoPage
             .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:32px 0 20px; } .card { min-height:155px; padding:21px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(140deg,#17264aee,#101a35ee); box-shadow:0 20px 60px #00000035; } .step { color:var(--teal); font-size:.78rem; font-weight:800; letter-spacing:.1em; } h2 { margin:12px 0 8px; font-size:1.14rem; } .card p { margin:0; color:var(--muted); line-height:1.48; font-size:.91rem; }
             .console { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:#0b142b; box-shadow:0 24px 80px #00000045; } .console-head { display:flex; justify-content:space-between; align-items:center; padding:15px 19px; border-bottom:1px solid var(--line); background:#101d3d; } .console-title { font-weight:720; } .refresh { color:var(--teal); font:inherit; font-size:.86rem; border:1px solid #386878; background:#102d39; border-radius:9px; padding:7px 10px; cursor:pointer; } .rows { padding:6px 19px 15px; } .row { display:grid; grid-template-columns:160px 1fr auto; gap:15px; align-items:center; padding:16px 0; border-bottom:1px solid #243555; } .row:last-child { border:0; } .label { color:var(--muted); font-size:.9rem; } .value { font-weight:650; overflow-wrap:anywhere; } .status { border-radius:999px; padding:6px 10px; font-size:.76rem; font-weight:800; } .ok { color:#95ffed; background:#11463e; } .pending { color:#ffe2a5; background:#5d4216; } .complete { color:#b5a6ff; background:#332965; }
             .flow { display:flex; gap:8px; align-items:center; color:#d9e4fb; flex-wrap:wrap; margin:25px 0 0; } .node { border:1px solid #324d79; border-radius:10px; background:#132344; padding:10px 12px; font-weight:700; font-size:.86rem; } .arrow { color:var(--teal); font-size:1.25rem; } .foot { margin:26px 0 0; color:var(--muted); font-size:.87rem; } a { color:var(--teal); }
+            .try { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:16px 19px; border-bottom:1px solid var(--line); background:#0e1a36; } .send { font:inherit; font-weight:700; font-size:.9rem; color:#06201c; background:var(--teal); border:0; border-radius:10px; padding:10px 14px; cursor:pointer; } .send:disabled { opacity:.5; cursor:progress; } .file { font:inherit; font-size:.86rem; color:var(--muted); } .hint { color:var(--muted); font-size:.84rem; }
+            .timeline { display:flex; gap:8px; flex-wrap:wrap; } .tick { border:1px solid #324d79; border-radius:999px; padding:5px 10px; font-size:.78rem; font-weight:700; color:#6f81a8; } .tick.on { color:#06201c; background:var(--teal); border-color:var(--teal); } .tick.fail { color:#2a0b0b; background:#ff8a8a; border-color:#ff8a8a; } .tick time { font-weight:500; margin-left:5px; opacity:.8; }
+            .docs { list-style:none; margin:0; padding:0; display:grid; gap:6px; } .docs li { display:flex; justify-content:space-between; gap:12px; font-size:.88rem; color:#d9e4fb; } .docs span { color:var(--muted); }
             @media (max-width:720px) { main{padding:30px 18px;} .grid{grid-template-columns:1fr;} .row{grid-template-columns:1fr;gap:6px;} .status{justify-self:start;} }
           </style>
         </head>
@@ -28,7 +31,7 @@ public static class LocalDemoPage
           <main>
             <div class="eyebrow">No-cost local Azure-ready demonstration</div>
             <h1>Document processing, made visible.</h1>
-            <p class="lead">This console reads the running DocuRelay API. Upload a document from the MAUI app or OpenAPI page; the transactional outbox dispatches it to the local worker and the resulting status appears here.</p>
+            <p class="lead">This console reads the running DocuRelay API. Send a sample field report below (or upload from the MAUI app); the transactional outbox dispatches it to the local worker and you watch the status change live.</p>
             <div class="pill"><span class="dot"></span><span id="connection">Checking local API…</span></div>
             <section class="grid" aria-label="Architecture steps">
               <article class="card"><div class="step">01 · API</div><h2>ASP.NET Core</h2><p>Accepts a scoped multipart upload and stores document metadata.</p></article>
@@ -37,10 +40,17 @@ public static class LocalDemoPage
             </section>
             <section class="console" aria-label="Live processing state">
               <div class="console-head"><span class="console-title">Live processing state</span><button class="refresh" id="refresh" type="button">Refresh data</button></div>
+              <div class="try">
+                <button class="send" id="send" type="button">Send a sample field report</button>
+                <label class="hint">or upload your own <input class="file" id="file" type="file" aria-label="Upload a document (max 10 MB)" /></label>
+                <span class="hint" id="try-note">Uses the real multipart endpoint · max 10 MB</span>
+              </div>
               <div class="rows">
                 <div class="row"><span class="label">API health</span><span class="value" id="health">Loading…</span><span class="status pending" id="health-status">CHECKING</span></div>
                 <div class="row"><span class="label">Dossier</span><span class="value" id="dossier">Loading seeded dossier…</span><span class="status pending" id="dossier-status">WAITING</span></div>
                 <div class="row"><span class="label">Latest document</span><span class="value" id="document">No document loaded yet</span><span class="status pending" id="document-status">READY</span></div>
+                <div class="row"><span class="label">Status path</span><span class="timeline" id="timeline"><span class="tick" data-s="Pending">Pending</span><span class="tick" data-s="Processing">Processing</span><span class="tick" data-s="Completed">Completed</span></span><span></span></div>
+                <div class="row"><span class="label">Recent in dossier</span><ul class="docs" id="docs"><li><span>Nothing uploaded yet</span></li></ul><span></span></div>
               </div>
             </section>
             <div class="flow" aria-label="Processing flow"><span class="node">MAUI / OpenAPI</span><span class="arrow">→</span><span class="node">Document API</span><span class="arrow">→</span><span class="node">Outbox</span><span class="arrow">→</span><span class="node">Worker</span><span class="arrow">→</span><span class="node">Completed</span></div>
@@ -49,6 +59,63 @@ public static class LocalDemoPage
           <script>
             const byId = id => document.getElementById(id);
             const setStatus = (id, text, kind) => { const item = byId(id); item.textContent = text; item.className = `status ${kind}`; };
+            const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+            let dossierId = null;
+            const seen = {};
+            function markState(state) {
+              if (seen[state]) return;
+              seen[state] = new Date();
+              const tick = document.querySelector(`.tick[data-s="${state}"]`) || (state === 'Failed' ? Object.assign(byId('timeline').appendChild(document.createElement('span')), { className: 'tick', dataset: { s: 'Failed' }, textContent: 'Failed' }) : null);
+              if (!tick) return;
+              tick.classList.add(state === 'Failed' ? 'fail' : 'on');
+              tick.insertAdjacentHTML('beforeend', `<time>${seen[state].toLocaleTimeString()}</time>`);
+            }
+            async function upload(file) {
+              if (!dossierId) await refresh();
+              const sendButton = byId('send');
+              sendButton.disabled = true;
+              Object.keys(seen).forEach(key => delete seen[key]);
+              document.querySelectorAll('.tick').forEach(tick => { tick.classList.remove('on', 'fail'); tick.querySelector('time')?.remove(); });
+              const form = new FormData();
+              form.append('file', file);
+              try {
+                const response = await fetch(`/api/dossiers/${dossierId}/documents`, { method: 'POST', body: form });
+                if (response.status === 401) throw new Error('This API requires Entra ID sign-in; use the MAUI app.');
+                if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `Upload failed (${response.status})`);
+                const receipt = await response.json();
+                byId('try-note').textContent = `Uploaded ${receipt.fileName} — following its status…`;
+                markState(receipt.status);
+                await follow(receipt.documentId);
+              } catch (error) {
+                byId('try-note').textContent = error.message;
+              } finally {
+                sendButton.disabled = false;
+              }
+            }
+            async function follow(documentId) {
+              for (let i = 0; i < 120; i++) {
+                const detail = await fetch(`/api/dossiers/${dossierId}`).then(response => response.json());
+                render(detail);
+                const doc = detail.documents.find(item => item.id === documentId);
+                // The worker can finish between two polls. Processing was passed, but not observed: no time.
+                if (doc && doc.status === 'Completed' && !seen.Processing) { seen.Processing = true; document.querySelector('.tick[data-s="Processing"]').classList.add('on'); }
+                if (doc) markState(doc.status);
+                if (doc && (doc.status === 'Completed' || doc.status === 'Failed')) {
+                  byId('try-note').textContent = `${doc.fileName}: ${doc.status.toLowerCase()} by the worker.`;
+                  return refresh();
+                }
+                await new Promise(resolve => setTimeout(resolve, 250));
+              }
+            }
+            function render(detail) {
+              byId('docs').innerHTML = detail.documents.slice(0, 5).map(doc => `<li>${esc(doc.fileName)} <span>${esc(doc.status)} · ${new Date(doc.uploadedAt).toLocaleTimeString()}</span></li>`).join('') || '<li><span>Nothing uploaded yet</span></li>';
+            }
+            byId('send').addEventListener('click', () => {
+              const now = new Date();
+              const text = `Field inspection report\nDossier: ${byId('dossier').textContent}\nInspector: demo technician\nTime: ${now.toISOString()}\n\nCooling unit inspected; filter replaced; no leaks found.\n`;
+              upload(new File([text], `inspection-${now.toTimeString().slice(0, 8).replaceAll(':', '')}.txt`, { type: 'text/plain' }));
+            });
+            byId('file').addEventListener('change', event => { const file = event.target.files[0]; if (file) upload(file); event.target.value = ''; });
             async function refresh() {
               try {
                 const health = await fetch('/health').then(response => response.json());
@@ -56,16 +123,18 @@ public static class LocalDemoPage
                 setStatus('health-status', 'HEALTHY', 'ok');
                 byId('connection').textContent = 'Local API connected — no Azure resources required';
                 const dossiers = await fetch('/api/dossiers').then(response => response.json());
-                const dossier = dossiers[0];
+                const dossier = dossiers.find(item => item.id === dossierId) || dossiers[0];
                 if (!dossier) return;
+                dossierId = dossier.id;
                 byId('dossier').textContent = `${dossier.reference} · ${dossier.title}`;
                 setStatus('dossier-status', `${dossier.documentCount} DOCUMENT${dossier.documentCount === 1 ? '' : 'S'}`, 'complete');
                 const detail = await fetch(`/api/dossiers/${dossier.id}`).then(response => response.json());
+                render(detail);
                 const document = detail.documents[0];
                 if (document) {
-                  byId('document').textContent = `${document.fileName} · ${new Date(document.uploadedAtUtc).toLocaleTimeString()}`;
-                  const complete = document.processingStatus === 'Completed';
-                  setStatus('document-status', document.processingStatus.toUpperCase(), complete ? 'complete' : 'pending');
+                  byId('document').textContent = `${document.fileName} · ${new Date(document.uploadedAt).toLocaleTimeString()}`;
+                  const complete = document.status === 'Completed';
+                  setStatus('document-status', document.status.toUpperCase(), complete ? 'complete' : 'pending');
                 }
               } catch (error) {
                 byId('connection').textContent = 'Start the API to connect this console';

@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Weekly run: newly published advisories fail the build (warnings are errors), so a
+  # vulnerable transitive package is noticed within a week instead of at the next push.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
