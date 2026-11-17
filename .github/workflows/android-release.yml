@@ -22,7 +22,7 @@ jobs:
           --framework net10.0-android
           --property:AndroidPackageFormat=aab
           --output artifacts/android
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: docurelay-field-android-aab
           path: artifacts/android/**/*.aab
