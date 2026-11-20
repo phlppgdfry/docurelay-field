@@ -13,6 +13,7 @@ public static class LocalDemoPage
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>DocuRelay Field | Processing Console</title>
+          <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230b142b%22/%3E%3Cpath d=%22M16 22V9M11 14l5-5 5 5%22 fill=%22none%22 stroke=%22%233cdbc7%22 stroke-width=%222.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M9 24h14%22 stroke=%22%239c7dff%22 stroke-width=%222.8%22 stroke-linecap=%22round%22/%3E%3C/svg%3E" />
           <style>
             :root { color-scheme: dark; --ink:#e9efff; --muted:#a9b8d5; --line:#2a3a62; --panel:#111b35; --card:#172445; --teal:#3cdbc7; --violet:#9c7dff; --amber:#ffca62; }
             * { box-sizing:border-box; } body { margin:0; min-height:100vh; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:radial-gradient(circle at 18% 8%,#263d76 0,transparent 29rem),radial-gradient(circle at 88% 16%,#283468 0,transparent 26rem),#091125; }
