@@ -4,13 +4,13 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # .NET MAUI packages must match the installed .NET SDK and MAUI workload,
-    # so they move with an SDK upgrade, not in the weekly group (MA003 / NU1608).
-    ignore:
-      - dependency-name: "Microsoft.Maui.*"
     groups:
       dotnet:
         patterns: ["*"]
+        # .NET MAUI packages must match the installed .NET SDK and MAUI workload
+        # (MA003 / NU1608), so they get their own PRs instead of breaking this group.
+        # Not an `ignore`: that would also block MAUI security updates.
+        exclude-patterns: ["Microsoft.Maui.*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
